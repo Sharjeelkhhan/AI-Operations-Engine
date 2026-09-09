@@ -1,0 +1,51 @@
+case_id,expected_decision,expected_reason
+CASE5000,REFUND_RECOMMENDED,Two successful payments found for same subscription period.
+CASE5001,HUMAN_REVIEW,Only one successful payment found; claim cannot be verified.
+CASE5002,PAYMENT_INVESTIGATION,Database shows payment failed; discrepancy needs manual check.
+CASE5003,HUMAN_REVIEW,Cancellation timing unclear; need to verify cancellation date vs payment date.
+CASE5004,SECURITY_REVIEW,Potential unauthorized transaction; must escalate to security.
+CASE5005,HUMAN_REVIEW,Refund amount exceeds $500; manager approval required.
+CASE5006,REFUND_RECOMMENDED,Cancellation date is before payment date; valid refund.
+CASE5007,REFUND_RECOMMENDED,Duplicate payments found.
+CASE5008,HUMAN_REVIEW,Only one payment found.
+CASE5009,PAYMENT_INVESTIGATION,Payment status mismatch.
+CASE5010,HUMAN_REVIEW,Reason not specified or unclear.
+CASE5011,REFUND_RECOMMENDED,Cancellation before payment.
+CASE5012,HUMAN_REVIEW,Cancellation after payment.
+CASE5013,SECURITY_REVIEW,Potential unauthorized.
+CASE5014,HUMAN_REVIEW,Amount dispute; need manual check.
+CASE5015,HUMAN_REVIEW,Plan mismatch; investigate.
+CASE5016,REFUND_RECOMMENDED,Payment after cancellation.
+CASE5017,HUMAN_REVIEW,No evidence of cancellation.
+CASE5018,HUMAN_REVIEW,Request lacks specific reason.
+CASE5019,HUMAN_REVIEW,Not a billing dispute; route to support.
+CASE5020,HUMAN_REVIEW,Action requires manual cancellation.
+CASE5021,REFUND_RECOMMENDED,Duplicate annual charge.
+CASE5022,HUMAN_REVIEW,Only one annual payment.
+CASE5023,HUMAN_REVIEW,Invoice dispute; need manual review.
+CASE5024,HUMAN_REVIEW,Failed payments are not charged; investigate.
+CASE5025,SECURITY_REVIEW,Security concern.
+CASE5026,HUMAN_REVIEW,Manager approval required.
+CASE5027,HUMAN_REVIEW,Generic billing inquiry.
+CASE5028,HUMAN_REVIEW,Generic billing inquiry.
+CASE5029,HUMAN_REVIEW,Generic billing inquiry.
+CASE5030,HUMAN_REVIEW,Generic billing inquiry.
+CASE5031,HUMAN_REVIEW,Generic billing inquiry.
+CASE5032,HUMAN_REVIEW,Generic billing inquiry.
+CASE5033,HUMAN_REVIEW,Generic billing inquiry.
+CASE5034,HUMAN_REVIEW,Generic billing inquiry.
+CASE5035,HUMAN_REVIEW,Generic billing inquiry.
+CASE5036,HUMAN_REVIEW,Generic billing inquiry.
+CASE5037,HUMAN_REVIEW,Generic billing inquiry.
+CASE5038,HUMAN_REVIEW,Generic billing inquiry.
+CASE5039,HUMAN_REVIEW,Generic billing inquiry.
+CASE5040,HUMAN_REVIEW,Generic billing inquiry.
+CASE5041,HUMAN_REVIEW,Generic billing inquiry.
+CASE5042,HUMAN_REVIEW,Generic billing inquiry.
+CASE5043,HUMAN_REVIEW,Generic billing inquiry.
+CASE5044,HUMAN_REVIEW,Generic billing inquiry.
+CASE5045,HUMAN_REVIEW,Generic billing inquiry.
+CASE5046,HUMAN_REVIEW,Generic billing inquiry.
+CASE5047,HUMAN_REVIEW,Generic billing inquiry.
+CASE5048,HUMAN_REVIEW,Generic billing inquiry.
+CASE5049,HUMAN_REVIEW,Generic billing inquiry.

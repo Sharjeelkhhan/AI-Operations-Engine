@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: novadesk_db
+    environment:
+      POSTGRES_USER: novadesk
+      POSTGRES_PASSWORD: novadesk_password
+      POSTGRES_DB: novadesk
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

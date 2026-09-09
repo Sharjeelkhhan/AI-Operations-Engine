@@ -1,0 +1,51 @@
+case_id,customer_id,message,submitted_at
+CASE5000,C1001,I was charged twice for my subscription this month. Please refund the duplicate payment.,2026-09-15
+CASE5001,C1002,I was charged twice this month.,2026-09-15
+CASE5002,C1005,My payment went through but my account still says unpaid.,2026-09-15
+CASE5003,C1004,I cancelled my subscription but was charged again. I want a refund.,2026-09-15
+CASE5004,C1006,I don't recognize this payment. Please refund it.,2026-09-15
+CASE5005,C1005,I was charged twice for my Enterprise subscription. Please refund one.,2026-09-15
+CASE5006,C1091,I cancelled my subscription but still got charged. Please refund.,2026-09-15
+CASE5007,C1012,"I was charged twice, please refund.",2026-09-15
+CASE5008,C1013,"I was charged twice, please refund.",2026-09-15
+CASE5009,C1014,My payment failed but I see a charge.,2026-09-15
+CASE5010,C1015,I want a refund for my subscription.,2026-09-15
+CASE5011,C1016,I cancelled my subscription and got charged.,2026-09-15
+CASE5012,C1017,I cancelled my subscription and got charged.,2026-09-15
+CASE5013,C1018,I don't recognize this payment.,2026-09-15
+CASE5014,C1019,"This payment is too high, I want a refund.",2026-09-15
+CASE5015,C1020,I upgraded but was charged the old price.,2026-09-15
+CASE5016,C1021,I was charged after my subscription ended.,2026-09-15
+CASE5017,C1022,I was charged after my subscription ended.,2026-09-15
+CASE5018,C1023,Please refund my last payment.,2026-09-15
+CASE5019,C1024,My account is still active but I can't login.,2026-09-15
+CASE5020,C1025,I want to cancel my subscription immediately.,2026-09-15
+CASE5021,C1026,I was double charged for my annual plan.,2026-09-15
+CASE5022,C1027,I was double charged for my annual plan.,2026-09-15
+CASE5023,C1028,My invoice is incorrect.,2026-09-15
+CASE5024,C1029,I need a refund for a failed payment.,2026-09-15
+CASE5025,C1030,Unauthorized transaction on my account.,2026-09-15
+CASE5026,C1031,Duplicate payment but amount is over $500.,2026-09-15
+CASE5027,C1085,I have a billing issue.,2026-09-15
+CASE5028,C1052,I have a billing issue.,2026-09-15
+CASE5029,C1009,I have a billing issue.,2026-09-15
+CASE5030,C1019,I have a billing issue.,2026-09-15
+CASE5031,C1095,I have a billing issue.,2026-09-15
+CASE5032,C1082,I have a billing issue.,2026-09-15
+CASE5033,C1004,I have a billing issue.,2026-09-15
+CASE5034,C1012,I have a billing issue.,2026-09-15
+CASE5035,C1096,I have a billing issue.,2026-09-15
+CASE5036,C1068,I have a billing issue.,2026-09-15
+CASE5037,C1028,I have a billing issue.,2026-09-15
+CASE5038,C1049,I have a billing issue.,2026-09-15
+CASE5039,C1054,I have a billing issue.,2026-09-15
+CASE5040,C1059,I have a billing issue.,2026-09-15
+CASE5041,C1044,I have a billing issue.,2026-09-15
+CASE5042,C1021,I have a billing issue.,2026-09-15
+CASE5043,C1048,I have a billing issue.,2026-09-15
+CASE5044,C1040,I have a billing issue.,2026-09-15
+CASE5045,C1093,I have a billing issue.,2026-09-15
+CASE5046,C1042,I have a billing issue.,2026-09-15
+CASE5047,C1100,I have a billing issue.,2026-09-15
+CASE5048,C1073,I have a billing issue.,2026-09-15
+CASE5049,C1077,I have a billing issue.,2026-09-15
