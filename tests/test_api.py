@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -150,8 +152,11 @@ def test_concurrent_updates_are_not_double_applied():
 def test_stale_version_update_is_rejected():
     db = SessionLocal()
     try:
+        subscription_id = f"SUB-{uuid.uuid4().hex[:8]}"
+        payment_id = f"PAY-{uuid.uuid4().hex[:8]}"
+
         subscription = Subscription(
-            subscription_id="SUB-100",
+            subscription_id=subscription_id,
             customer_id="C1001",
             plan="Pro",
             monthly_price=100,
@@ -164,9 +169,9 @@ def test_stale_version_update_is_rejected():
         db.flush()
 
         payment = Payment(
-            payment_id="PAY-999",
+            payment_id=payment_id,
             customer_id="C1001",
-            subscription_id="SUB-100",
+            subscription_id=subscription_id,
             amount=100,
             currency="USD",
             status="pending",
