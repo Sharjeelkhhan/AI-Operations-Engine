@@ -44,9 +44,9 @@ jobs:
 
       - name: Run tests
         env:
-          APP_ENV: production
+          APP_ENV: development
           DATABASE_URL: postgresql://novadesk:novadesk_password@localhost:5433/novadesk
           REDIS_URL: redis://localhost:6379/0
-          API_KEY: test-api-key
+          API_KEY: dev-api-key
         run: |
           pytest tests/ -q
