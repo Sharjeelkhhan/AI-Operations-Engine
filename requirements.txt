@@ -3,4 +3,9 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 python-dotenv
-pydantic
+pydantic[email]
+email-validator
+pytest
+httpx
+alembic
+redis

@@ -1,52 +1,86 @@
-from pydantic import BaseModel
 from datetime import date
-from typing import Optional
 
-class CustomerOut(BaseModel):
-    customer_id: str
-    name: str
-    email: str
-    country: str
-    plan: str
-    class Config:
-        orm_mode = True
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-class SubscriptionOut(BaseModel):
-    subscription_id: str
+
+class CustomerBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: EmailStr
+    country: str = Field(..., min_length=2, max_length=50)
+    plan: str = Field(..., pattern=r"^(Starter|Pro|Business|Enterprise)$")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CustomerCreate(CustomerBase):
+    customer_id: str = Field(..., pattern=r"^C\d{4}$")
+
+
+class CustomerOut(CustomerBase):
+    customer_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SubscriptionBase(BaseModel):
     customer_id: str
     plan: str
-    monthly_price: int
-    status: str
+    monthly_price: int = Field(..., ge=0)
+    status: str = Field(..., pattern=r"^(active|cancelled|suspended|past_due)$")
     start_date: date
     renewal_date: date
-    class Config:
-        orm_mode = True
 
-class PaymentOut(BaseModel):
-    payment_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SubscriptionOut(SubscriptionBase):
+    subscription_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaymentBase(BaseModel):
     customer_id: str
     subscription_id: str
-    amount: int
-    currency: str
-    status: str
+    amount: int = Field(..., ge=0)
+    currency: str = Field(..., min_length=3, max_length=3)
+    status: str = Field(..., pattern=r"^(successful|failed|pending)$")
     payment_date: date
-    class Config:
-        orm_mode = True
 
-class InvoiceOut(BaseModel):
-    invoice_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaymentOut(PaymentBase):
+    payment_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InvoiceBase(BaseModel):
     customer_id: str
     subscription_id: str
-    amount: int
-    status: str
+    amount: int = Field(..., ge=0)
+    status: str = Field(..., pattern=r"^(paid|unpaid)$")
     invoice_date: date
-    class Config:
-        orm_mode = True
 
-class SupportCaseOut(BaseModel):
-    case_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InvoiceOut(InvoiceBase):
+    invoice_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SupportCaseBase(BaseModel):
     customer_id: str
-    message: str
+    message: str = Field(..., min_length=5, max_length=2000)
     submitted_at: date
-    class Config:
-        orm_mode = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SupportCaseOut(SupportCaseBase):
+    case_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+    model_config = ConfigDict(from_attributes=True)
