@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
-
+from app.routers import policy
 from app.config import settings
 from app.database import engine
 from app.logger import logger
@@ -14,6 +14,7 @@ app.include_router(customers.router)
 app.include_router(payments.router)
 app.include_router(subscriptions.router)
 app.include_router(support_cases.router)
+app.include_router(policy.router)
 
 def reset_rate_limit_history():
     rate_limiter.reset()

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Integer, Date, ForeignKey
+from pgvector.sqlalchemy import Vector
 from app.database import Base
 
 
@@ -56,3 +57,16 @@ class Invoice(Base):
     amount = Column(Integer, nullable=False)
     status = Column(String, index=True, nullable=False)
     invoice_date = Column(Date, nullable=False)
+
+
+class PolicyChunk(Base):
+    __tablename__ = "policy_chunks"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    source_file = Column(String, nullable=False, index=True)
+    section_title = Column(String, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    chunk_text = Column(String, nullable=False)
+    embedding = Column(Vector(768), nullable=False)
+    embedding_model = Column(String, nullable=False)
+    created_at = Column(Date, nullable=False)
