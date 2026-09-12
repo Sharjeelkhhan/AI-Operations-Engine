@@ -11,3 +11,5 @@ alembic
 redis
 groq
 pgvector
+ollama
+ollama

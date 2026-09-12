@@ -1,7 +1,10 @@
 import time
 from typing import List
 
-import ollama
+try:
+    import ollama
+except ModuleNotFoundError:  # pragma: no cover - handled at runtime
+    ollama = None
 
 from app.logger import logger
 
@@ -17,6 +20,9 @@ def embed_text(text: str) -> List[float]:
     """Generate a 768-dim embedding for a single text string."""
     if not text or not text.strip():
         raise EmbeddingError("Cannot embed empty text")
+
+    if ollama is None:
+        raise EmbeddingError("ollama package is not installed")
 
     start = time.time()
     try:
