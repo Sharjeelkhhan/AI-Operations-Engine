@@ -42,6 +42,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Enable pgvector extension
+        env:
+          PGPASSWORD: novadesk_password
+        run: |
+          psql -h localhost -p 5433 -U novadesk -d novadesk -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
       - name: Run tests
         env:
           APP_ENV: development
