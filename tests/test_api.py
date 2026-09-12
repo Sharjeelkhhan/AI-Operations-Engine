@@ -1,4 +1,7 @@
+import json
 import uuid
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -6,12 +9,19 @@ from fastapi.testclient import TestClient
 from app.database import SessionLocal, Base, engine
 from app.concurrency import ConcurrencyConflictError, apply_payment_update
 from app.main import app, reset_rate_limit_history
-from app.models import Customer, Payment, Subscription
+from app.models import Customer, Payment, Subscription, SupportCase
 from app.services.idempotency_service import clear_idempotency_store, remember_request_key
 
 client = TestClient(app)
 HEADERS = {"X-API-Key": "dev-api-key", "X-User-Role": "admin"}
 VIEWER_HEADERS = {"X-API-Key": "dev-api-key", "X-User-Role": "viewer"}
+
+
+def _fake_response(payload: dict):
+    return SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps(payload)))],
+        usage=SimpleNamespace(prompt_tokens=100, completion_tokens=40),
+    )
 
 
 def setup_module():
@@ -185,3 +195,67 @@ def test_stale_version_update_is_rejected():
             apply_payment_update(db, payment.payment_id, "successful", 0)
     finally:
         db.close()
+
+
+@patch("app.services.llm_service._get_client")
+def test_extract_endpoint_returns_structured_claim(mock_get_client):
+    case_id = f"CASE-{uuid.uuid4().hex[:8].upper()}"
+    db = SessionLocal()
+    try:
+        db.add(
+            SupportCase(
+                case_id=case_id,
+                customer_id="C1001",
+                message="I was charged twice this month.",
+                submitted_at="2026-09-12",
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = _fake_response({
+        "claim_type": "duplicate_charge",
+        "claimed_amount": 99.0,
+        "urgency": "medium",
+        "key_details": "Customer reports duplicate charge.",
+    })
+    mock_get_client.return_value = mock_client
+
+    response = client.post(f"/support-cases/{case_id}/extract", headers=HEADERS)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["claim_type"] == "duplicate_charge"
+    assert body["urgency"] == "medium"
+    assert body["claimed_amount"] == 99.0
+
+
+def test_extract_nonexistent_case_returns_404():
+    response = client.post("/support-cases/CASE9999/extract", headers=HEADERS)
+    assert response.status_code == 404
+
+
+def test_extract_requires_admin_role():
+    case_id = f"CASE-{uuid.uuid4().hex[:8].upper()}"
+    db = SessionLocal()
+    try:
+        db.add(
+            SupportCase(
+                case_id=case_id,
+                customer_id="C1001",
+                message="Customer wants a refund.",
+                submitted_at="2026-09-12",
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.post(f"/support-cases/{case_id}/extract", headers=VIEWER_HEADERS)
+    assert response.status_code == 403
+
+
+def test_extract_requires_api_key():
+    response = client.post("/support-cases/CASE5001/extract", headers={})
+    assert response.status_code == 401

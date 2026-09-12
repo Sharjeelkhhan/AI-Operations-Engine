@@ -14,6 +14,7 @@ class Settings:
         self.RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
         self.DATABASE_URL = os.getenv("DATABASE_URL", "")
         self.REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        self.GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
         self.validate_environment()
 
     def validate_environment(self):
@@ -23,6 +24,8 @@ class Settings:
                 missing.append("API_KEY")
             if not self.DATABASE_URL:
                 missing.append("DATABASE_URL")
+            if not self.GROQ_API_KEY:
+                missing.append("GROQ_API_KEY")
             if missing:
                 raise ValueError(f"Missing required production secrets: {', '.join(missing)}")
 

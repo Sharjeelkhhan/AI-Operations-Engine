@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -84,3 +85,18 @@ class SupportCaseOut(SupportCaseBase):
 class ErrorResponse(BaseModel):
     detail: str
     model_config = ConfigDict(from_attributes=True)
+
+
+class ClaimExtraction(BaseModel):
+    claim_type: Literal[
+        "duplicate_charge",
+        "unauthorized_transaction",
+        "refund_request",
+        "cancellation_dispute",
+        "payment_failure",
+        "invoice_mismatch",
+        "other",
+    ]
+    claimed_amount: Optional[float] = None
+    urgency: Literal["low", "medium", "high"]
+    key_details: str

@@ -124,3 +124,61 @@ This is the current evidence that the backend is stable and ready for the AI pha
 - .github/workflows/ci.yml
 - docker-compose.yml
 - .env.example
+
+9. ADDITIONAL PRE-AI HARDENING COMPLETED
+----------------------------------------
+Date: 2026-09-12
+This final hardening pass focused on deployment safety and operational readiness before AI work begins.
+
+- Docker Compose was strengthened with health checks for the PostgreSQL and Redis services.
+- The app service now waits for database and Redis health to pass before starting.
+- Restart policies were added so service recovery is more resilient in local and containerized environments.
+- A .dockerignore file was added to reduce image size and avoid shipping unnecessary local files into the app environment.
+- The production-safe configuration patterns already in place were confirmed to remain valid under the final validation run.
+
+This keeps the project in a safer state for AI-assisted workflows without introducing unnecessary risk to the live operational layer.
+
+10. FINAL VALIDATION EVIDENCE
+-----------------------------
+Command used:
+python -c "import pytest, sys; raise SystemExit(pytest.main(['tests/test_api.py', '-q']))"
+
+Result:
+- 15 tests passed
+- 1 warning
+- Time: 3.31s
+
+This is the verified baseline before moving into the AI phase.
+
+11. DAY 2: REAL LLM EXTRACTION PHASE
+-------------------------------------
+Date: 2026-09-12
+Status: Completed and verified.
+
+The project moved from a production-safe baseline into its first real AI capability: structured claim extraction using Groq.
+
+What was added:
+- Groq SDK integration via the Python package dependency.
+- GROQ_API_KEY configuration loaded from environment settings in app/config.py.
+- Structured extraction schema in app/schemas.py for claim_type, claimed_amount, urgency, and key_details.
+- LLM extraction service in app/services/llm_service.py using Llama 3.3 70B with JSON-mode output.
+- Extraction endpoint in app/routers/support_cases.py that looks up a case by ID and calls the model for claim extraction.
+- Logging for prompt version, model name, latency, prompt tokens, completion tokens, and LLM failures.
+- Pytest coverage in tests/test_llm_service.py with mocked Groq responses for valid JSON, invalid JSON, and invalid claim type handling.
+
+Why this matters:
+- This is the first genuine AI layer in the system, not a keyword rule engine.
+- The model can interpret customer wording beyond exact hardcoded phrases.
+- The response is validated with Pydantic before being returned.
+- The pipeline is safe, observable, and testable.
+
+Validation evidence:
+Command used:
+python -c "import pytest; raise SystemExit(pytest.main(['tests/', '-v']))"
+
+Result:
+- 18 tests passed
+- 1 warning
+- Time: 3.01s
+
+This is the verified Day 2 milestone: real structured LLM extraction is in place and working.
