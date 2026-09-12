@@ -56,4 +56,13 @@ def search(db: Session, query: str, top_k: int = 5) -> List[RetrievedChunk]:
             "latency_ms": latency_ms,
         },
     )
+    if not results:
+        logger.warning(
+            "retrieval_no_matches",
+            extra={
+                "query_length": len(query),
+                "top_k": top_k,
+                "latency_ms": latency_ms,
+            },
+        )
     return results

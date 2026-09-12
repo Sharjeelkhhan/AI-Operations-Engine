@@ -49,3 +49,17 @@ def test_search_returns_top_k_ordered(mock_embed, db):
 
     db.execute(delete(PolicyChunk))
     db.commit()
+
+
+@patch("app.services.retrieval_service.embed_text")
+def test_search_returns_empty_list_when_no_matches(mock_embed, db):
+    db.execute(delete(PolicyChunk))
+    db.commit()
+
+    mock_embed.return_value = [0.1] * 768
+
+    results = retrieval_service.search(db, "no match query", top_k=3)
+
+    assert results == []
+    db.execute(delete(PolicyChunk))
+    db.commit()
