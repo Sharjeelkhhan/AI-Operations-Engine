@@ -11,7 +11,7 @@ from app.schemas import ClaimExtraction
 _client: Optional[Groq] = None
 
 EXTRACTION_PROMPT_VERSION = "extract_v1"
-MODEL_NAME = "llama-3.3-70b-versatile"
+MODEL_NAME = "openai/gpt-oss-20b"
 
 SYSTEM_PROMPT = """You are a claim extraction system for a SaaS customer support team.
 
