@@ -1,15 +1,17 @@
 import time
 from typing import List
 
-try:
-    import ollama
-except ModuleNotFoundError:  # pragma: no cover - handled at runtime
-    ollama = None
-
 from app.logger import logger
 
 EMBEDDING_MODEL = "nomic-embed-text"
 EMBEDDING_DIM = 768
+
+try:
+    import ollama
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    ollama = None
+    OLLAMA_AVAILABLE = False
 
 
 class EmbeddingError(Exception):
@@ -21,8 +23,8 @@ def embed_text(text: str) -> List[float]:
     if not text or not text.strip():
         raise EmbeddingError("Cannot embed empty text")
 
-    if ollama is None:
-        raise EmbeddingError("ollama package is not installed")
+    if not OLLAMA_AVAILABLE:
+        raise EmbeddingError("ollama package is not installed in this environment")
 
     start = time.time()
     try:
