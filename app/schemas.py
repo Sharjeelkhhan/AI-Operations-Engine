@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Literal, Optional
-
+from typing import Literal, Optional, List
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -100,3 +100,37 @@ class ClaimExtraction(BaseModel):
     claimed_amount: Optional[float] = None
     urgency: Literal["low", "medium", "high"]
     key_details: str
+
+class EvidenceBundle(BaseModel):
+    payments: List[str] = []
+    subscriptions: List[str] = []
+    total_amount: float = 0.0
+    policy_chunks: List[str] = []
+    summary: str = ""
+
+
+class DecisionOutput(BaseModel):
+    decision: Literal[
+        "REFUND_RECOMMENDED",
+        "REFUND_WITH_APPROVAL",
+        "CANCELLATION_REFUND",
+        "PAYMENT_INVESTIGATION",
+        "SECURITY_REVIEW",
+        "HUMAN_REVIEW",
+        "INFO_ONLY",
+    ]
+    confidence: float
+    reason: str
+    evidence: EvidenceBundle
+    requires_human_approval: bool = False
+
+
+class AnalyzeResponse(BaseModel):
+    case_id: str
+    claim: ClaimExtraction
+    decision: str
+    confidence: float
+    reason: str
+    evidence: EvidenceBundle
+    requires_human_approval: bool
+    llm_metadata: dict
