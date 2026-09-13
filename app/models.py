@@ -70,3 +70,15 @@ class PolicyChunk(Base):
     embedding = Column(Vector(768), nullable=False)
     embedding_model = Column(String, nullable=False)
     created_at = Column(Date, nullable=False)
+
+class CaseDecision(Base):
+    __tablename__ = "case_decisions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    case_id = Column(String, nullable=False, index=True)
+    decision = Column(String, nullable=False)
+    confidence = Column(Integer, nullable=False)  # store as 0-100 int
+    requires_human_approval = Column(String, nullable=False)  # "true"/"false"
+    reason = Column(String, nullable=False)
+    routed_to = Column(String, nullable=False)  # "refund", "security", "human", "info"
+    created_at = Column(Date, nullable=False)
