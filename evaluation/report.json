@@ -1,0 +1,128 @@
+{
+  "run_id": "eval_20260913_152728",
+  "timestamp": "2026-09-13T15:27:28Z",
+  "model": "openai/gpt-oss-20b",
+  "prompt_version": "decision_v1",
+  "summary": {
+    "total_cases": 27,
+    "correct": 22,
+    "accuracy": 0.8148148148148148,
+    "failure_count": 5,
+    "failures": [
+      {
+        "case_id": "CASE5002",
+        "expected": "PAYMENT_INVESTIGATION",
+        "actual": "HUMAN_REVIEW",
+        "confidence": 0.6,
+        "requires_human_approval": true,
+        "reason": "No successful payment IDs or amount found; subscription S2005 is past_due, so claim unsupported by evidence.",
+        "evidence_payments": [],
+        "policy_chunks": [
+          "payment_policy.md#3. Payment Records",
+          "payment_policy.md#2. Failed Payments",
+          "payment_policy.md#1. Payment Processing"
+        ],
+        "latency_ms": 1717,
+        "claim_type": "payment_failure"
+      },
+      {
+        "case_id": "CASE5003",
+        "expected": "REFUND_RECOMMENDED",
+        "actual": "HUMAN_REVIEW",
+        "confidence": 0.8,
+        "requires_human_approval": true,
+        "reason": "Guardrail: confidence 0.80 below threshold 0.85. Duplicate payments P3005 and P3004 ($49.00 each) detected for subscription S2004 per policy \"Duplicate Charges\"; refund warranted and below $500.",
+        "evidence_payments": [
+          "P3005",
+          "P3004"
+        ],
+        "policy_chunks": [
+          "refund_policy.md#1. Duplicate Charges",
+          "refund_policy.md#3. Cancellation Refunds",
+          "cancellation_policy.md#1. Subscription Cancellation"
+        ],
+        "latency_ms": 1484,
+        "claim_type": "duplicate_charge"
+      },
+      {
+        "case_id": "CASE5006",
+        "expected": "REFUND_RECOMMENDED",
+        "actual": null,
+        "error": "Request timed out.",
+        "latency_ms": 27799
+      },
+      {
+        "case_id": "CASE5020",
+        "expected": "HUMAN_REVIEW",
+        "actual": "INFO_ONLY",
+        "confidence": 0.9,
+        "requires_human_approval": false,
+        "reason": "Policy 3 states no refund if cancellation occurs after payment date; subscription S2025 is active with no cancellation recorded, so no refund is warranted.",
+        "evidence_payments": [
+          "P3043",
+          "P3042"
+        ],
+        "policy_chunks": [
+          "cancellation_policy.md#1. Subscription Cancellation",
+          "refund_policy.md#3. Cancellation Refunds",
+          "payment_policy.md#2. Failed Payments"
+        ],
+        "latency_ms": 11297,
+        "claim_type": "cancellation_dispute"
+      },
+      {
+        "case_id": "CASE5024",
+        "expected": "REFUND_WITH_APPROVAL",
+        "actual": "HUMAN_REVIEW",
+        "confidence": 0.9,
+        "requires_human_approval": true,
+        "reason": "Claim of a failed payment contradicts evidence of two successful payments (P3050, P3049) and policy states that unverified claims require human review.",
+        "evidence_payments": [
+          "P3050",
+          "P3049"
+        ],
+        "policy_chunks": [
+          "payment_policy.md#2. Failed Payments",
+          "refund_policy.md#4. General Refund Conditions",
+          "cancellation_policy.md#2. Refunds After Cancellation"
+        ],
+        "latency_ms": 10420,
+        "claim_type": "refund_request"
+      }
+    ]
+  },
+  "per_category": {
+    "REFUND_RECOMMENDED": {
+      "correct": 7,
+      "total": 9,
+      "accuracy": 0.7777777777777778
+    },
+    "PAYMENT_INVESTIGATION": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "SECURITY_REVIEW": {
+      "correct": 5,
+      "total": 5,
+      "accuracy": 1.0
+    },
+    "HUMAN_REVIEW": {
+      "correct": 10,
+      "total": 11,
+      "accuracy": 0.9090909090909091
+    },
+    "REFUND_WITH_APPROVAL": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    }
+  },
+  "confidence": {
+    "avg_correct": 0.7518181818181818,
+    "avg_incorrect": 0.8,
+    "count_correct": 22,
+    "count_incorrect": 4
+  },
+  "avg_latency_ms": 8824
+}

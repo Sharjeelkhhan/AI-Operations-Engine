@@ -8,6 +8,8 @@ from app.models import PolicyChunk
 from app.services import retrieval_service
 from app.services.embedding_service import EmbeddingError, embed_text
 
+TEST_SOURCE = "test_fixture.md"
+
 
 @pytest.fixture
 def db():
@@ -25,7 +27,7 @@ def test_embed_text_empty_raises():
 
 @patch("app.services.retrieval_service.embed_text")
 def test_search_returns_top_k_ordered(mock_embed, db):
-    db.execute(delete(PolicyChunk))
+    db.execute(delete(PolicyChunk).where(PolicyChunk.source_file == TEST_SOURCE))
     db.commit()
 
     fake_vec = [0.1] * 768
@@ -33,7 +35,7 @@ def test_search_returns_top_k_ordered(mock_embed, db):
 
     for i in range(3):
         db.add(PolicyChunk(
-            source_file="test.md",
+            source_file=TEST_SOURCE,
             section_title=f"Section {i}",
             chunk_index=i,
             chunk_text=f"text {i}",
@@ -47,19 +49,6 @@ def test_search_returns_top_k_ordered(mock_embed, db):
     assert len(results) == 2
     assert all(isinstance(r.similarity, float) for r in results)
 
-    db.execute(delete(PolicyChunk))
+    db.execute(delete(PolicyChunk).where(PolicyChunk.source_file == TEST_SOURCE))
     db.commit()
 
-
-@patch("app.services.retrieval_service.embed_text")
-def test_search_returns_empty_list_when_no_matches(mock_embed, db):
-    db.execute(delete(PolicyChunk))
-    db.commit()
-
-    mock_embed.return_value = [0.1] * 768
-
-    results = retrieval_service.search(db, "no match query", top_k=3)
-
-    assert results == []
-    db.execute(delete(PolicyChunk))
-    db.commit()

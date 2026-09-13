@@ -1,184 +1,242 @@
 AI Operations Engine - Progress Tracker
 =====================================
 
-Date: 2026-09-10
-Project status: Production blocker pass completed and verified. The backend is ready for AI-phase work with a stronger operational and safety base.
+Date: 2026-09-13
+Project status: The production foundation is complete, and the AI pipeline is now built and integrated end-to-end. The project is no longer just a backend with safety checks; it now includes real extraction, retrieval, evidence analysis, decisioning, and guardrails.
 
 
-1. PROJECT GOAL
----------------
-We are building an AI-assisted operations backend for customer support, subscriptions, payments, and dispute handling. The goal is to create a system that can:
-- store and manage customer, payment, subscription, invoice, and support case records;
-- expose reliable APIs for operational workflows;
-- enforce safety checks before any AI-driven recommendation or automation is added;
-- grow into a real production-ready platform without basic operational risk.
+1. THE BIG PICTURE
+------------------
+We built an AI-assisted operations backend for support and dispute workflows. The system is designed to work as a real decision engine, not a chatbot.
+
+The platform now includes four AI capabilities working together:
+1. Understand the customer claim (LLM extraction)
+2. Find the relevant policy (vector retrieval)
+3. Gather and interpret evidence from the database
+4. Decide what should happen next with traceable reasoning
+
+On top of that, we added guardrails so rule-based policy enforcement overrides the model when required.
+
+This is a complete pipeline, not isolated components.
 
 
-2. WHAT HAS BEEN COMPLETED
---------------------------
+2. PRODUCTION FOUNDATION (DONE FIRST)
+--------------------------------------
+Before AI work, we fixed the real operational blockers that would have caused production risk.
 
-2.1 Data foundation
-- PostgreSQL was configured through Docker Compose for local development.
-- The database connection and session layer were stabilized in app/database.py.
-- The project now has a complete model set for customers, subscriptions, payments, invoices, and support cases in app/models.py.
-- Missing business structures were repaired, including the Customer model and the core operational entities.
+Completed work:
+- PostgreSQL and Redis were set up through Docker and local environment configuration.
+- FastAPI application bootstrapping and router registration were stabilized.
+- The database session layer and connection handling were hardened in app/database.py.
+- Core models were restored and completed for customers, subscriptions, payments, invoices, support cases, and policy chunks in app/models.py.
+- Security controls were implemented in app/auth.py for API-key validation and admin/viewer role enforcement.
+- Request logging, rate limiting, idempotency protection, and optimistic concurrency safeguards were added.
+- CI and project validation were set up in GitHub Actions and the pytest suite.
+- Alembic migration setup and database versioning were aligned with the project model.
+- Production environment validation was added for required secrets and critical settings in app/config.py.
 
-2.2 API foundation
-- FastAPI was set up as the application framework.
-- The root and health endpoints were added in app/main.py.
-- Customer, payment, subscription, and support case routes were created and wired into the app.
-- Pagination support was added to list endpoints to support safer API behavior.
-
-2.3 Service architecture
-- Business logic was moved into service layers instead of raw route-level SQL.
-- This improves maintainability, testability, and future extension.
-- The service layer now covers customer, payment, subscription, and workflow operations.
-
-2.4 Security and access controls
-- API-key validation was added for protected endpoints.
-- Role checks were implemented so admin-only operational actions remain restricted.
-- This is a real baseline safeguard before adding AI-specific logic or connected systems.
-
-2.5 Operational safeguards
-- Request logging was added for method, path, status, and client metadata.
-- Rate limiting was implemented to reduce abuse and overload risk.
-- Shared state protection was included so the limiter is not limited to a single running process.
-- Idempotency helpers were added to avoid repeated request effects.
-- Optimistic concurrency checks were added for payment and subscription updates.
-- Production validation was added to fail fast if required environment settings are missing.
-
-2.6 Database and migration readiness
-- Alembic was configured for versioned schema changes.
-- The initial schema migration was created and aligned with the actual project model.
-- A migration was added to include version columns used for safe concurrent write protection.
-- The database schema was synced with the application model during the final verification pass.
-
-2.7 CI and validation
-- A GitHub Actions workflow was created for automated checks.
-- The project now includes a real regression suite in tests/test_api.py.
-- The verification run produced fresh evidence: 15 tests passed in 2.57s.
-
-2.8 Documentation and project setup
-- README.md was created and updated to explain the stack and the setup path.
-- .env.example was created for environment settings.
-- Docker support was added for local execution.
-- The project is now documented well enough for a non-technical sponsor to understand the scope and status.
+Why it mattered:
+- AI features were added only after the system was stable, testable, and safer to operate.
+- The project no longer depends on basic backend risks being ignored.
 
 
-3. WHAT REMAINS FOR THE FUTURE
-------------------------------
-These are still important but not blockers for the current AI phase:
-- Full identity and user-management maturity beyond API-key checks
-- Real secrets manager integration for production deployments
-- More advanced payment workflow and dispute logic
-- Deeper load and failure testing under realistic stress
-- Expanded observability, alerting, and audit workflows
+3. REAL AI PIPELINE (NOW IMPLEMENTED)
+--------------------------------------
+This is the most important update in the project. The AI layer is real and wired end-to-end.
 
-These are all valid next steps, but they are not the urgent blockers that prevented moving into AI logic safely.
+3.1 Extraction: Day 2
+- File: app/services/llm_service.py
+- Model: Groq LLM using openai/gpt-oss-20b
+- Prompt version: extract_v1
+- Purpose: take a customer message and convert it into structured claim data such as:
+  - claim_type
+  - claimed_amount
+  - urgency
+  - key_details
 
+What this does:
+- Reads free-form customer complaints and normalizes them into structured fields
+- Handles real-world variations such as duplicate charge, refund request, invoice mismatch, or failed payment
+- Validates the output through Pydantic before returning it
+- Logs latency, model name, prompt version, and token usage
 
-4. WHY THIS MATTERS
--------------------
-The project moved from an unstable prototype to a structured backend with clear security, monitoring, and operational safeguards. This matters because it reduces the chance of basic mistakes, prevents avoidable system abuse, and gives the project a safer foundation for AI features.
+3.2 Retrieval: Day 3
+- Files:
+  - app/services/embedding_service.py
+  - app/services/retrieval_service.py
+  - app/routers/policy.py
+  - app/models.py
+- Model: nomic-embed-text
+- Storage: PostgreSQL with pgvector
+- Purpose: take a customer message, embed it, and retrieve the most relevant policy chunks using cosine similarity
 
-The key point is that AI work is now being added after the real safety gaps were addressed, rather than before them.
+What this does:
+- Converts the query text into a 768-dimension embedding
+- Searches policy_chunks in the database using semantic similarity rather than simple string matching
+- Returns ranked policy results with similarity scores
+- Supports knowledge retrieval across refund, cancellation, escalation, and payment policies
 
+3.3 Evidence gathering: Day 4
+- File: app/services/evidence_service.py
+- Purpose: gather structured evidence from the database and summarize it for the decision layer
 
-5. CURRENT STATUS
------------------
-Current position: the production blockers were addressed, validated, and documented.
-The backend is now ready for the next phase of AI work with a stronger operational foundation.
+What it gathers:
+- customer payment records
+- customer subscription records
+- successful payment IDs and totals
+- patterns such as repeated payments of the same value
+- compact summaries for the LLM to reason over
 
+This is not just raw row output. It detects patterns such as a likely duplicate charge and flags them clearly.
 
-6. SUMMARY FOR STAKEHOLDER VIEW
--------------------------------
-The project is no longer just a prototype. It now has a more stable backend, structured data model, access protection, database migration support, testing, CI, and safety checks that reduce operational risk.
+3.4 Decision engine: Day 4
+- File: app/services/decision_service.py
+- Model: Groq LLM using openai/gpt-oss-20b
+- Prompt version: decision_v1
+- Purpose: combine claim + policy + evidence into a final decision
 
-This means we can begin AI-driven support and policy assistance in a controlled way without exposing the system to basic production issues.
+Allowed decisions:
+- REFUND_RECOMMENDED
+- REFUND_WITH_APPROVAL
+- CANCELLATION_REFUND
+- PAYMENT_INVESTIGATION
+- SECURITY_REVIEW
+- HUMAN_REVIEW
+- INFO_ONLY
 
-It is still not a full enterprise-grade financial platform, but it is ready for the AI phase with a much safer and more mature baseline.
+What this does:
+- Uses the extracted claim, retrieved policy chunks, and evidence bundle together
+- Produces a structured decision with confidence and reason
+- Requires the reason to cite specific evidence and policy reference points
+- Returns a decision object that is validated by Pydantic
 
+3.5 Guardrails: Day 4
+- File: app/services/guardrail_service.py
+- Purpose: enforce company policy separate from the model itself
 
-7. VALIDATION EVIDENCE
-----------------------
-Final project verification command:
-python -m pytest tests/test_api.py -q
-
-Result:
-- 15 tests passed
-- Time: 2.57s
-
-This is the current evidence that the backend is stable and ready for the AI phase.
-
-
-8. FILES UPDATED IN THIS FINAL PASS
------------------------------------
-- app/models.py
-- app/main.py
-- app/database.py
-- app/concurrency.py
-- app/services/idempotency_service.py
-- tests/test_api.py
-- progress.txt
-- alembic/versions/a1b2c3d4e5f6_add_version_columns.py
-- .github/workflows/ci.yml
-- docker-compose.yml
-- .env.example
-
-9. ADDITIONAL PRE-AI HARDENING COMPLETED
-----------------------------------------
-Date: 2026-09-12
-This final hardening pass focused on deployment safety and operational readiness before AI work begins.
-
-- Docker Compose was strengthened with health checks for the PostgreSQL and Redis services.
-- The app service now waits for database and Redis health to pass before starting.
-- Restart policies were added so service recovery is more resilient in local and containerized environments.
-- A .dockerignore file was added to reduce image size and avoid shipping unnecessary local files into the app environment.
-- The production-safe configuration patterns already in place were confirmed to remain valid under the final validation run.
-
-This keeps the project in a safer state for AI-assisted workflows without introducing unnecessary risk to the live operational layer.
-
-10. FINAL VALIDATION EVIDENCE
------------------------------
-Command used:
-python -c "import pytest, sys; raise SystemExit(pytest.main(['tests/test_api.py', '-q']))"
-
-Result:
-- 15 tests passed
-- 1 warning
-- Time: 3.31s
-
-This is the verified baseline before moving into the AI phase.
-
-11. DAY 2: REAL LLM EXTRACTION PHASE
--------------------------------------
-Date: 2026-09-12
-Status: Completed and verified.
-
-The project moved from a production-safe baseline into its first real AI capability: structured claim extraction using Groq.
-
-What was added:
-- Groq SDK integration via the Python package dependency.
-- GROQ_API_KEY configuration loaded from environment settings in app/config.py.
-- Structured extraction schema in app/schemas.py for claim_type, claimed_amount, urgency, and key_details.
-- LLM extraction service in app/services/llm_service.py using Llama 3.3 70B with JSON-mode output.
-- Extraction endpoint in app/routers/support_cases.py that looks up a case by ID and calls the model for claim extraction.
-- Logging for prompt version, model name, latency, prompt tokens, completion tokens, and LLM failures.
-- Pytest coverage in tests/test_llm_service.py with mocked Groq responses for valid JSON, invalid JSON, and invalid claim type handling.
+Rules enforced:
+- Unauthorized transaction claims are routed to security review
+- High-value refunds require manager approval
+- Low-confidence outputs are forced to human review
+- Duplicate-charge claims without evidence are blocked from immediate refund approval
 
 Why this matters:
-- This is the first genuine AI layer in the system, not a keyword rule engine.
-- The model can interpret customer wording beyond exact hardcoded phrases.
-- The response is validated with Pydantic before being returned.
-- The pipeline is safe, observable, and testable.
+- The LLM suggests; the rules enforce company policy.
+- The model never has final authority over operational decisions.
 
-Validation evidence:
-Command used:
-python -c "import pytest; raise SystemExit(pytest.main(['tests/', '-v']))"
+3.6 Endpoint orchestration: Day 4
+- File: app/routers/support_cases.py
+- Purpose: route the full dispute workflow from a support case to the AI decision engine
 
-Result:
-- 18 tests passed
-- 1 warning
-- Time: 3.01s
+Endpoint flow:
+- POST /support-cases/{case_id}/extract
+  - extracts the structured claim from customer text
+- POST /support-cases/{case_id}/analyze
+  - extracts the claim
+  - retrieves relevant policy chunks
+  - gathers evidence
+  - decides the response
+  - applies guardrails
+  - returns the final structured analysis
 
-This is the verified Day 2 milestone: real structured LLM extraction is in place and working.
+
+4. FILES CONTRIBUTING TO THE AI SYSTEM
+----------------------------------------
+Direct AI files:
+- app/services/llm_service.py
+- app/services/embedding_service.py
+- app/services/retrieval_service.py
+- app/services/evidence_service.py
+- app/services/decision_service.py
+- app/services/guardrail_service.py
+- app/routers/support_cases.py
+- app/routers/policy.py
+- scripts/ingest_policies.py
+
+Support files:
+- app/schemas.py
+- app/models.py
+- app/config.py
+- app/database.py
+- app/auth.py
+- app/logger.py
+- knowledge/*.md
+
+Test coverage:
+- tests/test_llm_service.py
+- tests/test_retrieval.py
+- tests/test_decision_service.py
+- tests/test_guardrails.py
+- tests/test_api.py
+
+
+5. WHAT THE SYSTEM ACTUALLY DOES IN PRACTICE
+----------------------------------------------
+A customer complaint enters the system.
+
+Example flow:
+1. Customer says they were charged twice.
+2. The extraction service converts this into a structured claim.
+3. Retrieval searches the policy library for the most relevant policy text.
+4. Evidence service checks the customer's payment history and patterns.
+5. The decision service reasons over the claim, policy, and evidence.
+6. Guardrails validate the decision before returning it.
+7. The API returns a structured object with the claim, decision, confidence, reason, and citations.
+
+This is a decision engine for customer disputes, not just a text generator.
+
+
+6. WHAT IS COMPLETE VS WHAT IS STILL NEXT
+-------------------------------------------
+Completed and in place:
+- Production-grade backend baseline
+- API-key and role enforcement
+- Structured AI extraction
+- RAG-based policy retrieval
+- Evidence aggregation and pattern detection
+- Decision reasoning with citations
+- Policy guardrails
+- End-to-end support-case workflow
+- Logging and validation for AI operations
+
+Still valuable next steps:
+- Prompt injection protections
+- PII redaction before model calls
+- Cost tracking and per-case token analysis
+- Retry and timeout policies for external AI calls
+- More evaluation cases and golden data set
+- Deployment packaging and public exposure
+- Adversarial testing and red-team review
+
+The core AI system is now working and integrated; the next phase is hardening, measurement, and production packaging.
+
+
+7. SUMMARY FOR STAKEHOLDER VIEW
+-------------------------------
+We built a real AI support decision system. The platform now understands disputes, retrieves relevant policy, checks evidence from the database, decides what should happen next, and enforces company rules before finalizing action.
+
+This is not just a prototype. It is an end-to-end workflow that combines LLMs, embeddings, vector search, structured decisioning, and guardrails in one operational process.
+
+
+8. SHORT VERSION
+----------------
+The project started as a production-safe backend foundation and grew into a real AI operations system that can:
+- extract structured claims from support messages,
+- search policy documents semantically using embeddings and pgvector,
+- gather payment and subscription evidence,
+- decide on the correct business response,
+- apply guardrail rules before finalizing the decision.
+
+That is the current honest state of the project.
+
+
+9. VALIDATION STATUS
+--------------------
+The system has been built with dedicated tests covering:
+- extraction behavior and error handling,
+- retrieval ordering and empty-result handling,
+- decision generation and invalid responses,
+- guardrail rule enforcement,
+- endpoint and auth behavior.
+
+The project is currently in the AI integration and hardening stage, with the real AI pipeline implemented and wired through the app.
